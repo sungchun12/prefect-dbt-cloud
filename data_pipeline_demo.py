@@ -1,4 +1,5 @@
 from prefect import flow, task, get_run_logger
+
 # from prefect.tasks.dbt import DbtCloudRunJob # this does NOT work because this library doesn't exist in Orion yet
 # import os
 # from dotenv import load_dotenv
@@ -9,13 +10,16 @@ from prefect import flow, task, get_run_logger
 # TODO: add a dbt Cloud job example
 # dbt_cloud = DbtCloudRunJob(cause="prefect-flow", wait_for_job_run_completion=True)
 
+
 @task(name="Extract")
 def extract(logger):
     logger.info("Extract Raw Data")
 
+
 @task(name="Load")
 def load(logger):
     logger.info("Load Raw Data")
+
 
 @task(name="Transform")
 def transform(logger):
@@ -29,9 +33,11 @@ def transform(logger):
     # )
     # dbt_job.run()
 
+
 @task(name="Predict")
 def predict(logger):
     logger.info("Predict results on transformed data")
+
 
 @flow(name="Full Data Pipeline")
 def data_pipeline():
@@ -40,6 +46,7 @@ def data_pipeline():
     load(logger)
     transform(logger)
     predict(logger)
+
 
 if __name__ == "__main__":
     data_pipeline()
