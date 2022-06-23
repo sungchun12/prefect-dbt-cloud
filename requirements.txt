@@ -1,2 +1,2 @@
-prefect==2.0b5
+prefect==2.0b6
 python-dotenv==0.19.0
