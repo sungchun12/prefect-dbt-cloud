@@ -10,16 +10,10 @@ class dbt_command_run_results_parser:
         self.run_downstream_nodes = run_downstream_nodes
 
     def get_dbt_command_output(self, run_results) -> str:
-        run_results_dict = self.get_run_results_to_dict(run_results)
-        filtered_run_results_set = self.filter_run_results_dict_by_status(run_results_dict)
+        filtered_run_results_set = self.filter_run_results_dict_by_status(run_results)
         dbt_command_output = self.parse_run_results_to_dbt_command(filtered_run_results_set)
         return dbt_command_output
 
-    def get_run_results_to_dict(self, run_results) -> dict:
-        with open(run_results) as f:
-            run_results_dict = json.load(f)
-        return run_results_dict
-    
     def filter_run_results_dict_by_status(self, run_results_dict) -> set:
         filtered_run_results_set = set()
         run_results_models = run_results_dict.get('results')
