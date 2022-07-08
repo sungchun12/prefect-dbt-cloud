@@ -3,6 +3,7 @@
 ```bash
 python -m venv env # create virtual environment
 source env/bin/activate
+env/bin/python -m pip install --upgrade pip
 pip install -r requirements.txt
 python data_pipeline_demo.py
 prefect orion start
