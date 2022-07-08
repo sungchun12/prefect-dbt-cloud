@@ -1,8 +1,11 @@
 import os
+import asyncio
 from dataclasses import dataclass
 
 from prefect import flow, task
 from prefect_dbt.cloud import DbtCloudCredentials
+from prefect_dbt.cloud.models import TriggerJobRunOptions
+from prefect_dbt.cloud.jobs import trigger_dbt_cloud_job_run_and_wait_for_completion
 from prefect_dbt.cloud.runs import get_dbt_cloud_run_artifact
 from run_results_parser import dbt_command_run_results_parser
 
@@ -36,6 +39,12 @@ def smart_rerun_flow():
         path="run_results.json"
     )
     dbt_command_output = parse_run_results_to_dbt_command(artifact, dbt_command_generator)
-    print(dbt_command_output.result())
+    asyncio.run(trigger_dbt_cloud_job_run_and_wait_for_completion(
+        dbt_cloud_credentials=credentials,
+        job_id=30605,
+        trigger_job_run_options=TriggerJobRunOptions(
+            steps_override=[dbt_command_output.result()]
+    ))
+    )
 
 smart_rerun_flow()
