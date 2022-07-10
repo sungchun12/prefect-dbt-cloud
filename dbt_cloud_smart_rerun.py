@@ -9,21 +9,25 @@ from prefect_dbt.cloud.jobs import trigger_dbt_cloud_job_run_and_wait_for_comple
 from prefect_dbt.cloud.runs import get_dbt_cloud_run_artifact
 from run_results_parser import dbt_command_run_results_parser
 
+
 @dataclass(frozen=True)  # make attributes immutable
 class dbt_cloud_job_rerun_vars:
     """Basic dbt Cloud job rerun configurations."""
 
     # add type hints
-    run_id: int = os.getenv('RUN_ID')  # 46948860
-    status_set: set = os.getenv('STATUS_SET') # {'error','fail','warn'}
-    dbt_command_override: str = os.getenv('DBT_COMMAND_OVERRIDE') # "dbt build"
-    run_downstream_nodes: bool = bool(os.getenv('RUN_DOWNSTREAM_NODES'))  # True
+    run_id: int = os.getenv("RUN_ID")  # 46948860
+    status_set: set = os.getenv("STATUS_SET")  # {'error','fail','warn'}
+    dbt_command_override: str = os.getenv("DBT_COMMAND_OVERRIDE")  # "dbt build"
+    run_downstream_nodes: bool = bool(os.getenv("RUN_DOWNSTREAM_NODES"))  # True
 
 
 @task
 def parse_run_results_to_dbt_command(artifact, dbt_command_generator):
-    dbt_command_output = dbt_command_generator.get_dbt_command_output(run_results=artifact)
+    dbt_command_output = dbt_command_generator.get_dbt_command_output(
+        run_results=artifact
+    )
     return dbt_command_output
+
 
 @flow
 def smart_rerun_flow():
@@ -32,19 +36,24 @@ def smart_rerun_flow():
         dbt_cloud_job_rerun_vars.dbt_command_override,
         dbt_cloud_job_rerun_vars.run_downstream_nodes,
     )
-    credentials = DbtCloudCredentials(api_key=os.getenv('DBT_TOKEN'), account_id=16173)
+    credentials = DbtCloudCredentials(api_key=os.getenv("DBT_TOKEN"), account_id=16173)
     artifact = get_dbt_cloud_run_artifact(
         dbt_cloud_credentials=credentials,
         run_id=dbt_cloud_job_rerun_vars.run_id,
-        path="run_results.json"
+        path="run_results.json",
     )
-    dbt_command_output = parse_run_results_to_dbt_command(artifact, dbt_command_generator)
-    asyncio.run(trigger_dbt_cloud_job_run_and_wait_for_completion(
-        dbt_cloud_credentials=credentials,
-        job_id=30605,
-        trigger_job_run_options=TriggerJobRunOptions(
-            steps_override=[dbt_command_output.result()]
-    ))
+    dbt_command_output = parse_run_results_to_dbt_command(
+        artifact, dbt_command_generator
     )
+    asyncio.run(
+        trigger_dbt_cloud_job_run_and_wait_for_completion(
+            dbt_cloud_credentials=credentials,
+            job_id=30605,
+            trigger_job_run_options=TriggerJobRunOptions(
+                steps_override=[dbt_command_output.result()]
+            ),
+        )
+    )
+
 
 smart_rerun_flow()
