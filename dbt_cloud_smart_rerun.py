@@ -50,7 +50,7 @@ def smart_rerun_flow():
             dbt_cloud_credentials=credentials,
             job_id=30605,
             trigger_job_run_options=TriggerJobRunOptions(
-                steps_override=[dbt_command_output.result()]
+                steps_override=[dbt_command_output]
             ),
         )
     )
