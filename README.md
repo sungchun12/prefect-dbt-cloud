@@ -5,6 +5,7 @@ python -m venv env # create virtual environment
 source env/bin/activate
 env/bin/python -m pip install --upgrade pip
 pip install -r requirements.txt
+prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
 python data_pipeline_demo.py
 prefect orion start
 ```
